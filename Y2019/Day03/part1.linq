@@ -13,25 +13,31 @@ var data = File.ReadAllText($"{path}\\data.txt");
 int getSteps(string s) => int.Parse(s[1..]);
 int getDistance(int x, int y) => Math.Abs(0 - x) + Math.Abs(0 - y);
 
-var points = data
+var wires = data
 	.Split("\r\n")
 	.Select(p => p.Split(',')
 	.Scan(new[] { (x: 0, y: 0) }, (pos, dir) =>
-	{
-		var steps = getSteps(dir);
-		var last = pos.Last();
-		var range = Enumerable.Range(1, steps);
-
-		return
-			(dir[0] == 'U') ? range.Select(p => (last.x, last.y + p)).ToArray() :
-			(dir[0] == 'R') ? range.Select(p => (last.x + p, last.y)).ToArray() :
-			(dir[0] == 'D') ? range.Select(p => (last.x, last.y - p)).ToArray() :
-							  range.Select(p => (last.x - p, last.y)).ToArray();
-	}))
-	.SelectMany(p => p)
-	.SelectMany(p => p);
-
-var intersections = points 
+		{
+			var steps = getSteps(dir);
+			var last = pos.Last();
+			var range = Enumerable.Range(1, steps);
+	
+			return
+				(dir[0] == 'U') ? range.Select(p => (last.x, last.y + p)).ToArray() :
+				(dir[0] == 'R') ? range.Select(p => (last.x + p, last.y)).ToArray() :
+				(dir[0] == 'D') ? range.Select(p => (last.x, last.y - p)).ToArray() :
+								  range.Select(p => (last.x - p, last.y)).ToArray();
+		})
+		.SelectMany(p => p)
+	);
+	
+var distinctwires = wires
+	.Select(ws => ws
+		.DistinctBy(w => (x: w.x, y: w.y))
+	)
+	.SelectMany(ws => ws);
+				
+var intersections = distinctwires
 	.GroupBy(p => new { p.x, p.y })
 	.Select(g => new { g.Key, Count = g.Count() })
 	.Where(g => g.Count > 1)
@@ -40,13 +46,6 @@ var intersections = points
 	.OrderBy(d => d);
 	
 var result = intersections.First();
-var resultB = intersections.Skip(1).First();
 
 $"Result: {result}".Dump();
-$"ResultB: {resultB}".Dump();
 $"Time: {timer.ElapsedMilliseconds} ms".Dump();
-
-// 439 = too low
-// Erhm...
-// Sometimes it's the lowest and sometimes it's the second lowest
-// The correct answer for the input is the second lowest
