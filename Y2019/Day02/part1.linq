@@ -20,18 +20,22 @@ var code = data
 code[1] = 12;
 code[2] = 2;
 
-var result = 0;
-
 var i = 0;
 while (code[i] != 99 || i >= code.Length)
 {
-	result = (code[i] == 1) ? code[code[i + 1]] + code[code[i + 2]] :
-							  code[code[i + 1]] * code[code[i + 2]];
-
-	code[i + 3] = result;
+	var temp = code[i] switch
+	{
+		1 => code[code[i + 1]] + code[code[i + 2]],
+		2 => code[code[i + 1]] * code[code[i + 2]],
+		_ => 0
+	};
+	
+	code[code[i + 3]] = temp;
 	
 	i += 4;
 }
+
+var result = code[0];
 
 $"Result: {result}".Dump();
 $"Time: {timer.ElapsedMilliseconds} ms".Dump();
