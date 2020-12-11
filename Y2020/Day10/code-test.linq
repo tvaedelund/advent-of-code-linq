@@ -40,6 +40,12 @@ Func<List<int>, int> getValueToRemove = (ratings) =>
 
 Func<List<int>, int> getArrangements = (ratings) =>
 {
+	//var test = from m in Enumerable.Range(0, 1 << ratings.Count)
+	//		   select
+	//			   from i in Enumerable.Range(0, ratings.Count)
+	//			   where (m & (1 << i)) != 0
+	//			   select ratings[i];
+	
 	var i = 1;
 	var c = 1;
 	IEnumerable<IList<int>> subsets;
@@ -50,11 +56,21 @@ Func<List<int>, int> getArrangements = (ratings) =>
 		var b = subsets.Where(x => x.Count() > 0).Where(x => x.Min() == 0 && x.Max() == ratings.Max());
 		//b.Dump();
 		var d = b.Select(x => x.Zip(x.Skip(1), (p, c) => (p, c)).All(zip => zip.c - zip.p <= 3)).Where(x => x);
-		//d.Dump();
-	
-		d.Count().Dump();
+		//c.Dump();
+		
 		c += d.Count();
 	}
+
+	//var test = ratings.Subsets(ratings.Count - 1);
+	
+	//test.Count().Dump();
+
+	//var b = test.Where(x => x.Count() > 0).Where(x => x.Min() == 0 && x.Max() == ratings.Max());
+	//b.Dump();
+	//var c = b.Select(x => x.Zip(x.Skip(1), (p, c) => (p, c)).All(zip => zip.c - zip.p <= 3)).Where(x => x);
+	//c.Dump();
+
+	//test.Select(x => x.Take(test.Count() - 1).Select((c, i) => new { c, n = x.ElementAt(i) })).Dump();
 
 	return c;
 };
