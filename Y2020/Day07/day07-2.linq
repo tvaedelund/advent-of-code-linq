@@ -1,7 +1,7 @@
 <Query Kind="Statements" />
 
 var path = Path.GetDirectoryName(Util.CurrentQueryPath);
-var data = File.ReadAllLines(Path.Combine(path, "input-test2.txt"));
+var data = File.ReadAllLines(Path.Combine(path, "input.txt"));
 
 var regColor = new Regex(@"^(\w+ \w+) bags ");
 var regBags = new Regex(@"((\d) (\w+ \w+)) bags?");
@@ -75,11 +75,14 @@ Func<List<Bag>, int> ShinyGoldBagContains = (bags) =>
 	while (stack.Count() > 0)
 	{
 		var current = stack.Pop();
-		counter += current.Item1;
+		counter++;;
 
 		foreach (var bag in bags.Single(x => x.Color == current.Item2).Bags)
 		{
-			stack.Push(bag);
+			for (int i = 0; i < bag.Count; i++)
+			{
+				stack.Push(bag);
+			}
 		}
 	}
 	
