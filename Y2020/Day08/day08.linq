@@ -7,10 +7,9 @@ var instructions = data
 .Select(x => Regex.Match(x, @"^(\w{3}) ([+|-]\d+)"))
 .Select(x => new Instruction { Operation = x.Groups[1].Value, Value = int.Parse(x.Groups[2].Value) });
 
-var acc = 0;
-Func<IEnumerable<Instruction>, int> execute = (instructions) =>
+Func<IEnumerable<Instruction>, (int pos, int acc)> execute = (instructions) =>
 {
-	acc = 0;
+	var acc = 0;
 	var pos = 0;
 	var history = new List<int>();
 
@@ -32,19 +31,32 @@ Func<IEnumerable<Instruction>, int> execute = (instructions) =>
 		};
 	}
 	
-	return pos;
+	return (pos, acc);
 };
 
 // *** STEP 1 ***
 var sw1 = Stopwatch.StartNew();
-execute(instructions);
+var (pos, acc) = execute(instructions);
 var result1 = acc;
 sw1.Stop();
 
 // *** STEP 2 ***
 var sw2 = Stopwatch.StartNew();
-
-var result2 = 0;
+var i = 0;
+while (pos < instructions.Count())
+{
+	var modifiedInstr = instructions.ToList();
+	i = modifiedInstr.FindIndex(i, x => x.Operation == "jmp" || x.Operation == "nop");
+	modifiedInstr[i].Operation = modifiedInstr[i].Operation switch
+	{
+		"jmp" => "nop",
+		"nop" => "jmp",
+		_ => throw new Exception()
+	};
+	(pos, acc) = execute(modifiedInstr);
+	i++;
+}
+var result2 = acc;
 sw2.Stop();
 
 // *** REPORT ***
