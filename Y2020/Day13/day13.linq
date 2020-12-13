@@ -28,46 +28,23 @@ Func<string[], int> solvePart1 = (schedules) =>
 	return (next.Min(x => x.time) - target) * next.Single(x => x.time == next.Min(x => x.time)).id;
 };
 
-Func<BigInteger, BigInteger, BigInteger> modularMultiplicativeInverse = (a, mod) =>
+Func<string[], long> solvePart2 = (schedules) =>
 {
-	BigInteger b = a % mod;
-	for (int x = 1; x < mod; x++)
+	var busses = schedules[1].Replace('x', '0').Split(',').Select((b, i) => (long.Parse(b), i)).Where(x => x.Item1 > 0).ToArray();
+	
+	var jump = busses[0].Item1;
+	var i = jump;
+	foreach (var b in busses.Skip(1))
 	{
-		if ((b * x) % mod == 1)
-		{	
-			return x;
-		}
-	}
-	return 1;
-};
-
-Func<BigInteger[], BigInteger[], BigInteger> solve = (n, a) =>
-{
-	BigInteger prod = n.Aggregate((BigInteger)1, (i, j) => i * j);
-	BigInteger p;
-	BigInteger sm = 0;
-	for (int i = 0; i < n.Length; i++)
-	{
-		p = prod / n[i];
-		sm += a[i] * modularMultiplicativeInverse(p, n[i]) * p;
-	}
-	return sm % prod;
-};
-
-Func<string[], BigInteger> solvePart2 = (schedules) =>
-{
-	var ids = schedules[1].Replace('x', '0').Split(',').Select(BigInteger.Parse).ToArray();
-	var reminders = new List<BigInteger>();
-
-	for (int i = 0; i < ids.Length; i++)
-	{
-		if (ids[i] > 0)
+		while ((i + b.Item2) % b.Item1 != 0)
 		{
-			reminders.Add(ids[i] - i);
+			i += jump;
 		}
+		
+		jump *= b.Item1;
 	}
-
-	return solve(ids.Where(x => x > 0).ToArray(), reminders.ToArray());
+			
+	return i;
 };
 
 // *** STEP 1 ***
